@@ -26,3 +26,20 @@ def listen_here():
         except sr.RequestError as e:
             print(f"Could not request results; {e}")
             return ""
+        
+
+def speak_here(text):
+    '''
+    convert text to speech
+    '''
+    engine.say(text)
+    engine.runAndWait()
+
+
+def play_sound(file_path):
+    '''
+    play a sound file
+    '''
+    wave_obj = sa.WaveObject.from_wave_file(file_path)
+    play_obj = wave_obj.play()
+    play_obj.wait_done()  # Wait until sound has finished playing   

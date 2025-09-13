@@ -1,0 +1,5 @@
+pyserial==3.5
+requests==2.31.0
+opencv-python==4.8.1.78
+SpeechRecognition==3.10.0
+pyttsx3==2.90
