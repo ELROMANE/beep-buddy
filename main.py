@@ -10,3 +10,12 @@ while True:
     if not user_input:
         print("speak something motherfucking fucker")
         user_input = listen_here()
+
+    r2_reply = ask_prompt(user_input)
+    print("works>?", r2_reply)
+
+    speak_here(r2_reply)
+
+    if "happy" in r2_reply.lower():
+        play_sound("assets/sounds/lala.wav")
+
