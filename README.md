@@ -1,0 +1,2 @@
+# alpha
+arduino and ai
