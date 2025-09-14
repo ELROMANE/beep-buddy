@@ -21,6 +21,12 @@ def is_arduino_connected():
         return False
 
 
+def analyze_emotion(text):
+    prompt = f"Analyze the following message and tell me if the user sounds happy, sad, excited, or angry: '{text}'"
+    emotion = ask_prompt(prompt)
+    return emotion.strip().lower()
+
+
 def main():
     arduino_connected = is_arduino_connected()
     intro_message = "Hey, wassup!"
@@ -91,11 +97,18 @@ def main():
             speak_here(f"Summary: {summary}")
         time.sleep(0.5)  # Small pause to ensure TTS finishes before next listen
 
-        if "happy" in r2_reply.lower():
+        # Emotion/tone detection for sound and actions
+        emotion = analyze_emotion(r2_reply)
+        print("Detected emotion:", emotion)
+        if "happy" in emotion:
             play_sound("assets/sounds/lala.wav")
             if arduino_connected:
                 r2.tilt_head()
                 r2.beep()
+        elif "sad" in emotion:
+            speak_here("Don't worry, I'm here for you!")
+            if arduino_connected:
+                r2.tilt_head()
 
         if "bye" in user_input.lower():
             speak_here("Goodbye! See you soon!")
