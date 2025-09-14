@@ -11,7 +11,7 @@ def send_command(command):
     except Exception as e:
         print(f"Error communicating with Arduino: {e}")
 
-def tilt_Head():
+def tilt_head():
     send_command('TILT\n')
 
 def beep():

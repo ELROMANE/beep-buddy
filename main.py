@@ -8,6 +8,7 @@ import movement_sim as r2
 # library imports
 import cv2
 import time
+import numpy as np
 
 
 def is_arduino_connected():
@@ -23,11 +24,34 @@ def is_arduino_connected():
 
 def analyze_emotion(text):
     prompt = (
-        "Read the following message and respond with only one word: 'happy', 'sad', 'excited', 'angry', or 'neutral'. "
-        "Do not explain. Message: '" + text + "'"
+        "Read the following message and respond with ONLY ONE WORD from this list: happy, sad, excited, angry, neutral. "
+        "No explanation, no punctuation, just the word. Message: '" + text + "'"
     )
-    emotion = ask_prompt(prompt)
-    return emotion.strip().lower()
+    emotion = ask_prompt(prompt).strip().lower()
+    allowed = {"happy", "sad", "excited", "angry", "neutral"}
+    # Fallback to neutral if not recognized
+    if emotion not in allowed:
+        return "neutral"
+    return emotion
+
+
+def analyze_face_and_lighting():
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("[WARN] Camera could not be opened for analysis.")
+        return None, None
+    ret, frame = cap.read()
+    cap.release()
+    if not ret:
+        print("[WARN] Could not read frame from camera.")
+        return None, None
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    avg_brightness = np.mean(gray)
+    # Haar cascade for face detection
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    face_detected = len(faces) > 0
+    return avg_brightness, face_detected
 
 
 def main():
@@ -39,7 +63,17 @@ def main():
     awake = not arduino_connected  # If no Arduino, start awake
     try:
         while True:
+            # Analyze face and lighting at the start of each loop
+            avg_brightness, face_detected = analyze_face_and_lighting()
+            if avg_brightness is not None and avg_brightness < 60:
+                speak_here("Warning: The lighting is dim. Please turn on a light or move to a brighter area for better interaction.")
+            if avg_brightness is not None:
+                print(f"[DEBUG] Average brightness: {avg_brightness:.2f}")
+            if face_detected is not None and not face_detected:
+                speak_here("I can't see your face. Please make sure you are in front of the camera.")
+
             if not awake:
+                play_sound("assets/sounds/listening.wav")  # Play listening sound before listening
                 user_input = listen_here()
                 if user_input and "hello" in user_input.lower():
                     awake = True
@@ -53,11 +87,14 @@ def main():
                     speak_here(wake_message)
                     if arduino_connected:
                         r2.beep()
+                        r2.tilt_head()
                 continue
 
+            play_sound("assets/sounds/listening.wav")  # Play listening sound before listening
             user_input = listen_here()
+            print(f"[DEBUG] Heard: {user_input}")
             if not user_input:
-                speak_here("Please say something!")
+                speak_here("Please say something! Make sure your mic is on and speak clearly.")
                 continue
 
             if "help" in user_input.lower():
@@ -128,15 +165,15 @@ def main():
                     speak_here("Sorry, I didn't get that.")
                 else:
                     speak_here(r2_reply)
+                    # Only delay after AI-generated response
+                    word_count = len(r2_reply.split())
+                    delay = min(max(word_count * 0.3, 1), 10)
+                    time.sleep(delay)
             except Exception as e:
                 print(f"TTS error: {e}")
                 speak_here("Sorry, I couldn't speak that out loud.")
-            # Calculate delay based on word count, max 10 seconds
-            word_count = len(r2_reply.split())
-            delay = min(max(word_count * 0.3, 1), 10)  # 0.3s per word, at least 1s, max 10s
-            time.sleep(delay)
             # If reply is too long, summarize and present to user
-            if word_count > 30:
+            if 'r2_reply' in locals() and len(r2_reply.split()) > 30:
                 summary_prompt = f"Summarize this in 20 words or less for a child: {r2_reply}"
                 try:
                     summary = ask_prompt(summary_prompt)
@@ -148,25 +185,7 @@ def main():
             time.sleep(0.5)  # Small pause to ensure TTS finishes before next listen
 
             # Emotion/tone detection for sound and actions
-            try:
-                emotion = analyze_emotion(r2_reply)
-                print("Detected emotion:", emotion)
-                # Only trigger if the first word is 'happy' or 'sad'
-                first_word = emotion.split()[0] if emotion else ""
-                if first_word == "happy":
-                    try:
-                        play_sound("assets/sounds/lala.wav")
-                    except Exception as e:
-                        print(f"[WARN] Happy sound missing: {e}")
-                    if arduino_connected:
-                        r2.tilt_head()
-                        r2.beep()
-                elif first_word == "sad":
-                    speak_here("Don't worry, I'm here for you!")
-                    if arduino_connected:
-                        r2.tilt_head()
-            except Exception as e:
-                print(f"Emotion analysis error: {e}")
+            # (Removed voice-based mood analysis)
 
             if "bye" in user_input.lower():
                 speak_here("Goodbye! See you soon!")
