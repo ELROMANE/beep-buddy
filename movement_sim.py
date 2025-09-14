@@ -59,3 +59,6 @@ def look_right():
 
 def neutral():
     send_command('S')
+
+def beep():
+    send_command('B')
