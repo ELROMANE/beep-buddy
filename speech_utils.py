@@ -10,20 +10,23 @@ recognizer = sr.Recognizer()
 
 def listen_here():
     '''
-    captuer mic input
-    return text
+    Capture mic input and return text using Google Speech Recognition with tuned thresholds.
     '''
 
+    r = sr.Recognizer()
+    r.energy_threshold = 150  # Lower for more sensitivity, adjust as needed
+    r.pause_threshold = 0.7   # Adjust for your speaking style
     with sr.Microphone() as source:
-        print("Speak mf...")
-        audio = recognizer.listen(source, timeout = 7)
+        print("Speak now...")
         try:
-            text = recognizer.recognize_google(audio)
+            audio = r.listen(source, timeout=7)
+        except sr.WaitTimeoutError:
+            print("Listening timed out while waiting for phrase to start")
+            return ""
+        try:
+            text = r.recognize_google(audio)
             print(f"You said: {text}")
             return text
-        except sr.WaitTimeoutError:
-            print("Really Really")
-            return ""
         except sr.UnknownValueError:
             print("Sorry, I did not understand that.")
             return ""

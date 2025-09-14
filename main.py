@@ -63,15 +63,6 @@ def main():
     awake = not arduino_connected  # If no Arduino, start awake
     try:
         while True:
-            # Analyze face and lighting at the start of each loop
-            avg_brightness, face_detected = analyze_face_and_lighting()
-            if avg_brightness is not None and avg_brightness < 60:
-                speak_here("Warning: The lighting is dim. Please turn on a light or move to a brighter area for better interaction.")
-            if avg_brightness is not None:
-                print(f"[DEBUG] Average brightness: {avg_brightness:.2f}")
-            if face_detected is not None and not face_detected:
-                speak_here("I can't see your face. Please make sure you are in front of the camera.")
-
             if not awake:
                 play_sound("assets/sounds/listening.wav")  # Play listening sound before listening
                 user_input = listen_here()
@@ -81,8 +72,7 @@ def main():
                         play_sound("assets/sounds/lala.wav")  # Wake up sound
                     except Exception as e:
                         print(f"[WARN] Wake sound missing: {e}")
-                    current_time = time.strftime('%I:%M %p')
-                    wake_message = f"Yo, it's just {current_time}."
+                    wake_message = "Yo, I'm awake!"
                     print(wake_message)
                     speak_here(wake_message)
                     if arduino_connected:
@@ -140,6 +130,14 @@ def main():
                 continue
 
             if "opencamera" in user_input.lower():
+                # Only analyze face and lighting when user requests camera
+                avg_brightness, face_detected = analyze_face_and_lighting()
+                if avg_brightness is not None and avg_brightness < 60:
+                    speak_here("Warning: The lighting is dim. Please turn on a light or move to a brighter area for better interaction.")
+                if avg_brightness is not None:
+                    print(f"[DEBUG] Average brightness: {avg_brightness:.2f}")
+                if face_detected is not None and not face_detected:
+                    speak_here("I can't see your face. Please make sure you are in front of the camera.")
                 cap = cv2.VideoCapture(0)
                 if cap.isOpened():
                     ret, frame = cap.read()
@@ -151,6 +149,11 @@ def main():
                     speak_here("Camera opened!")
                 else:
                     speak_here("Camera could not be opened.")
+                continue
+
+            if "time" in user_input.lower():
+                current_time = time.strftime('%I:%M %p')
+                speak_here(f"The current time is {current_time}.")
                 continue
 
             try:
