@@ -30,12 +30,7 @@ def main():
     while True:
         if not awake:
             user_input = listen_here()
-            text_turn = listen_here()
-            if text_turn == "type":
-                speak_here("Type your prompt:")
-                user_text_input = input("What??")
-
-            if user_input and "hello" in user_input or "hello" in user_text_input.lower():
+            if user_input and "hello" in user_input.lower():
                 awake = True
                 play_sound("assets/sounds/lala.wav")  # Wake up sound
                 current_time = time.strftime('%I:%M %p')
@@ -54,24 +49,20 @@ def main():
         if "tired" in user_input.lower():
             play_sound("assets/sounds/lala.wav")  # Tired beep sound
             speak_here("I'm tired. Going to sleep.")
+            if arduino_connected:
+                r2.beep()
             awake = False
             continue
 
-        if "type" in user_input or "type" in user_text_input.lower():
-            speak_here("Type your prompt:")
-            user_input = input("Type your prompt: ")
-            if not user_input:
-                continue
-
-        if "shutup" in user_input or "shutup" in user_text_input.lower():
+        if "shutup" in user_input.lower():
             speak_here("Okay, I'll be quiet now.")
             break
 
-        if "quizme" in user_input or "quizme" in user_text_input.lower():
+        if "quizme" in user_input.lower():
             speak_here("Quiz mode is coming soon!")
             continue
 
-        if "opencamera" in user_input or "opencamera" in user_text_input.lower():
+        if "opencamera" in user_input.lower():
             cap = cv2.VideoCapture(0)
             if cap.isOpened():
                 ret, frame = cap.read()
@@ -88,6 +79,16 @@ def main():
         r2_reply = ask_prompt(user_input)
         print("R2D2:", r2_reply)
         speak_here(r2_reply)
+        # Calculate delay based on word count, max 10 seconds
+        word_count = len(r2_reply.split())
+        delay = min(max(word_count * 0.3, 1), 10)  # 0.3s per word, at least 1s, max 10s
+        time.sleep(delay)
+        # If reply is too long, summarize and present to user
+        if word_count > 30:
+            summary_prompt = f"Summarize this in 20 words or less for a child: {r2_reply}"
+            summary = ask_prompt(summary_prompt)
+            print("Summary:", summary)
+            speak_here(f"Summary: {summary}")
         time.sleep(0.5)  # Small pause to ensure TTS finishes before next listen
 
         if "happy" in r2_reply.lower():
@@ -96,7 +97,7 @@ def main():
                 r2.tilt_head()
                 r2.beep()
 
-        if "bye" in user_input or "bye" in user_text_input.lower():
+        if "bye" in user_input.lower():
             speak_here("Goodbye! See you soon!")
             break
 
