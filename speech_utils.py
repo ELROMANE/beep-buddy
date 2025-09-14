@@ -20,6 +20,9 @@ def listen_here():
             text = recognizer.recognize_google(audio)
             print(f"You said: {text}")
             return text
+        except sr.WaitTimeoutError:
+            print("Really Really")
+            return ""
         except sr.UnknownValueError:
             print("Sorry, I did not understand that.")
             return ""

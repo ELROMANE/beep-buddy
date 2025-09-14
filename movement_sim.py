@@ -1,41 +1,18 @@
-import time
-import os
+import serial, time
 
-def clear():
-    os.system('clear')
+ARDUINO_PORT = '/dev/ttyACM0'  # Update this to your Arduino port
+BAUD_RATE = 9600
 
-def move_forward():
-    clear()
-    print("""
-        🤖
-        /|\\   R2 is rolling FORWARD...
-        / \\
-    """)
-    time.sleep(1)
+def send_command(command):
+    try:
+        with serial.Serial(ARDUINO_PORT, BAUD_RATE, timeout = 1) as ser:
+            ser.write(command.encode())
+            time.sleep(2)  # wait for the command to be processed
+    except Exception as e:
+        print(f"Error communicating with Arduino: {e}")
 
-def turn_left():
-    clear()
-    print("""
-         🤖 <
-        /|\\   R2 turns LEFT...
-        / \\
-    """)
-    time.sleep(1)
+def tilt_Head():
+    send_command('TILT\n')
 
-def turn_right():
-    clear()
-    print("""
-        > 🤖
-        /|\\   R2 turns RIGHT...
-        / \\
-    """)
-    time.sleep(1)
-
-def stop():
-    clear()
-    print("""
-        🤖
-        /|\\   R2 stopped.
-        / \\
-    """)
-    time.sleep(1)
+def beep():
+    send_command('BEEP\n')
