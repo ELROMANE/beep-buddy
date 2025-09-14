@@ -32,9 +32,6 @@ def listen_here():
         
 
 def speak_here(text):
-    '''
-    convert text to speech
-    '''
     engine.say(text)
     engine.runAndWait()
 
@@ -45,4 +42,4 @@ def play_sound(file_path):
     '''
     wave_obj = sa.WaveObject.from_wave_file(file_path)
     play_obj = wave_obj.play()
-    play_obj.wait_done()  # Wait until sound has finished playing   
+    play_obj.wait_done()  # Wait until sound has finished playing
