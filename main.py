@@ -341,10 +341,8 @@ def main():
                     play_sound("assets/sounds/listening.wav")
                 except Exception as e:
                     print(f"[WARN] Could not play listening sound: {e}")
-                
                 user_input = listen_here()
                 print(f"[DEBUG] Sleep mode - Heard: '{user_input}'")
-                
                 if user_input and "hello" in user_input.lower():
                     awake = True
                     try:
@@ -356,15 +354,17 @@ def main():
                     speak_here(wake_message)
                     if arduino_connected:
                         r2.beep()
-                        r2.tilt_head()
+                        r2.tilt_head()  # Move head when waking up
                 continue
 
+            # Add a delay before listening for the next command
+            print("[INFO] Waiting 5 seconds before listening for next command...")
+            time.sleep(5)
             print("[INFO] Listening for command...")
             try:
                 play_sound("assets/sounds/listening.wav")
             except Exception as e:
                 print(f"[WARN] Could not play listening sound: {e}")
-            
             user_input = listen_here()
             print(f"[DEBUG] Awake mode - Heard: '{user_input}'")
             

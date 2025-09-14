@@ -5,6 +5,7 @@ import pyttsx3
 import simpleaudio as sa
 import threading
 import time
+from movement_sim import tilt_head
 
 # Initialize TTS engine
 try:
@@ -25,7 +26,9 @@ engine.setProperty('volume', 0.9)
 def listen_here():
     """
     Capture mic input and return text using Google Speech Recognition with tuned thresholds.
+    Also moves the servo head when listening starts.
     """
+    tilt_head()  # Move the head when listening starts
     r = sr.Recognizer()
     
     # Adjust microphone settings
@@ -80,20 +83,29 @@ def listen_here():
 
 def speak_here(text):
     """
-    Convert text to speech with error handling
+    Convert text to speech with natural pacing like Siri/Google Assistant
     """
     if not text or text.strip() == "":
         print("[WARN] Empty text provided to TTS")
         return
         
     try:
-        print(f"[TTS] Speaking: {text}")
+        print(f"[TTS] 🗣️ Speaking: {text}")
+        
+        # Brief pause before speaking (feels more natural)
+        time.sleep(0.3)
+        
         engine.say(text)
         engine.runAndWait()
+        
+        # Small pause after speaking (like natural conversation rhythm)
+        time.sleep(0.5)
+        
     except Exception as e:
         print(f"[ERROR] TTS error: {e}")
         # Fallback: just print the text
         print(f"[FALLBACK] Would have said: {text}")
+        time.sleep(1)  # Still add pause for natural rhythm
 
 
 def play_sound(file_path):
