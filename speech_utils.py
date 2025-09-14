@@ -1,5 +1,5 @@
 # handles the stt and tts
-engine = pyttsx3.init()
+engine = pyttsx3.init('nsss')
 
 import speech_recognition as sr
 import pyttsx3
