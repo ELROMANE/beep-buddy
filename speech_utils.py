@@ -1,10 +1,10 @@
 # handles the stt and tts
-engine = pyttsx3.init('nsss')
 
 import speech_recognition as sr
 import pyttsx3
 import simpleaudio as sa
 
+engine = pyttsx3.init('nsss')
 
 recognizer = sr.Recognizer()
 
