@@ -82,9 +82,18 @@ def main():
                 speak_here("Camera could not be opened.")
             continue
 
-        r2_reply = ask_prompt(user_input)
+        try:
+            r2_reply = ask_prompt(user_input)
+        except Exception as e:
+            print(f"Error with Cerebras API: {e}")
+            speak_here("Sorry, I couldn't get a response from my brain right now.")
+            continue
         print("R2D2:", r2_reply)
-        speak_here(r2_reply)
+        try:
+            speak_here(r2_reply)
+        except Exception as e:
+            print(f"TTS error: {e}")
+            speak_here("Sorry, I couldn't speak that out loud.")
         # Calculate delay based on word count, max 10 seconds
         word_count = len(r2_reply.split())
         delay = min(max(word_count * 0.3, 1), 10)  # 0.3s per word, at least 1s, max 10s
@@ -92,23 +101,32 @@ def main():
         # If reply is too long, summarize and present to user
         if word_count > 30:
             summary_prompt = f"Summarize this in 20 words or less for a child: {r2_reply}"
-            summary = ask_prompt(summary_prompt)
-            print("Summary:", summary)
-            speak_here(f"Summary: {summary}")
+            try:
+                summary = ask_prompt(summary_prompt)
+                print("Summary:", summary)
+                speak_here(f"Summary: {summary}")
+            except Exception as e:
+                print(f"Summary error: {e}")
+                speak_here("Sorry, I couldn't summarize that.")
         time.sleep(0.5)  # Small pause to ensure TTS finishes before next listen
 
         # Emotion/tone detection for sound and actions
-        emotion = analyze_emotion(r2_reply)
-        print("Detected emotion:", emotion)
-        if "happy" in emotion:
-            play_sound("assets/sounds/lala.wav")
-            if arduino_connected:
-                r2.tilt_head()
-                r2.beep()
-        elif "sad" in emotion:
-            speak_here("Don't worry, I'm here for you!")
-            if arduino_connected:
-                r2.tilt_head()
+        try:
+            emotion = analyze_emotion(r2_reply)
+            print("Detected emotion:", emotion)
+            # Only trigger if the first word is 'happy' or 'sad'
+            first_word = emotion.split()[0] if emotion else ""
+            if first_word == "happy":
+                play_sound("assets/sounds/lala.wav")
+                if arduino_connected:
+                    r2.tilt_head()
+                    r2.beep()
+            elif first_word == "sad":
+                speak_here("Don't worry, I'm here for you!")
+                if arduino_connected:
+                    r2.tilt_head()
+        except Exception as e:
+            print(f"Emotion analysis error: {e}")
 
         if "bye" in user_input.lower():
             speak_here("Goodbye! See you soon!")

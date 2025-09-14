@@ -1,11 +1,12 @@
 # handles the stt and tts
+engine = pyttsx3.init()
+
 import speech_recognition as sr
 import pyttsx3
 import simpleaudio as sa
 
 
 recognizer = sr.Recognizer()
-engine = pyttsx3.init()
 
 def listen_here():
     '''
