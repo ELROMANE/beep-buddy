@@ -1,28 +1,42 @@
-Overview:
+# beep-buddy
 
+## Overview
 
-beep-buddy bridges AI intelligence and physical robotics, creating a personal assistant that understands emotions, responds with meaningful physical actions. beep-buddy demonstrates a project on the track of sustainability which illustrates that AI systems can be both powerful and environmentally concious.
+beep-buddy bridges AI intelligence and physical robotics, creating a personal assistant that understands emotions and responds with meaningful physical actions. This project tightly integrates software intelligence and hardware expressiveness, making technology feel more human.
 
-Features:
+## Features
 
-Physical Actions:
-Servo motor head movements
+- **Physical Actions & Voice Interaction:**  
+  Servo motor movements and expressive gestures respond to user input, while integrated speech-to-text and text-to-speech capabilities enable natural voice conversations.
 
-Voice Interaction :
-Full speech-to-text and text-to-speech pipeline
+- **Multi-Modal & Robust Operation:**  
+  Supports voice, text, and emotion detection with continuous operation and fallback mechanisms, ensuring reliable performance even if some components fail.
 
-Technical Highlights:
+## Getting Started
 
+1. **Clone the repo:**
+   ```bash
+   git clone https://github.com/ELROMANE/beep-buddy.git
+   ```
 
-Multi-Modal Input-
-Voice, text, and emotion dtection
+2. **Set up hardware:**
+   - Connect servo motors to Arduino or compatible board.
+   - (Optional) Add microphone, speaker, or camera as needed.
 
-Robust Fallbacks-
-Continuos operation when components fail
+3. **Install dependencies:**
+   - See `requirements.txt` and `hardware_setup.md` for instructions.
 
-Hardware Abstration-
-Works with full Adruino setup or servo-only configuration
+4. **Run the application:**
+   ```bash
+   python main.py
+   ```
 
-Modular Architecture-
-Easily extendable and modifiable
+## Contributing
 
+We welcome contributions! See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.  
+- **Issues:** [GitHub Issues](https://github.com/ELROMANE/beep-buddy/issues)  
+- **Discussions:** [GitHub Discussions](https://github.com/ELROMANE/beep-buddy/discussions)
+
+## Contact
+
+For questions or support, open an issue or join the discussion on [GitHub Discussions](https://github.com/ELROMANE/beep-buddy/discussions).
