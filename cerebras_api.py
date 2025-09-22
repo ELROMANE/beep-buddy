@@ -4,8 +4,8 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-API_KEY = os.getenv("API_KEY")
+load_dotenv() #loads the .env file
+API_KEY = os.getenv("API_KEY") 
 API_URL = os.getenv("API_URL")
 
 

@@ -23,6 +23,86 @@ if voices:
 engine.setProperty('rate', 180)  # Adjust speech rate
 engine.setProperty('volume', 0.9)
 
+tts_interrupted = False
+
+def interrupt_tts():
+    global tts_interrupted
+    tts_interrupted = True
+
+def _speak_with_interrupt(text):
+    global tts_interrupted
+    if tts_interrupted:
+        return
+    try:
+        engine.say(text)
+        engine.runAndWait()
+    except Exception as e:
+        print(f"[ERROR] TTS error: {e}")
+
+
+def speak_long_text(text, max_chunk_size=100):
+    """
+    Speak long text in chunks, and allow interruption if user starts speaking.
+    """
+    global tts_interrupted
+    tts_interrupted = False
+    words = text.split()
+    if len(words) <= max_chunk_size:
+        _speak_with_interrupt(text)
+        return
+    chunks = []
+    current_chunk = []
+    for word in words:
+        current_chunk.append(word)
+        if len(current_chunk) >= max_chunk_size:
+            chunks.append(" ".join(current_chunk))
+            current_chunk = []
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+    for i, chunk in enumerate(chunks):
+        if tts_interrupted:
+            print("[TTS] Interrupted by user speech.")
+            break
+        if i > 0:
+            speak_here("Continuing...")
+            time.sleep(0.5)
+        _speak_with_interrupt(chunk)
+        time.sleep(1)
+
+
+def monitor_for_speech():
+    global tts_interrupted
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        while not tts_interrupted:
+            try:
+                audio = r.listen(source, timeout=0.5, phrase_time_limit=1)
+                try:
+                    text = r.recognize_google(audio)
+                    if text:
+                        print("[TTS] User interrupted with speech:", text)
+                        tts_interrupted = True
+                        break
+                except sr.UnknownValueError:
+                    pass
+            except sr.WaitTimeoutError:
+                pass
+
+
+def speak_with_interrupt(text):
+    global tts_interrupted
+    tts_interrupted = False
+    tts_thread = threading.Thread(target=speak_long_text, args=(text,))
+    monitor_thread = threading.Thread(target=monitor_for_speech)
+    tts_thread.start()
+    monitor_thread.start()
+    tts_thread.join()
+    monitor_thread.join()
+    if tts_interrupted:
+        print("[INFO] Switching to listening mode due to user interruption.")
+        # You can call listen_here() or your listening logic here
+
+
 def listen_here():
     """
     Capture mic input and return text using Google Speech Recognition with tuned thresholds.
