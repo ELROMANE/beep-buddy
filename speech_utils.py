@@ -21,7 +21,7 @@ def listen_here():
     r = sr.Recognizer()
     try:
         with sr.Microphone() as source:
-            print("[INFO] Listening... Speak now!")
+            print("[INFO] Listening...")
             audio = r.listen(source, timeout=10, phrase_time_limit=8)
             try:
                 text = r.recognize_google(audio, language='en-US')

@@ -2,6 +2,7 @@
 # Only wakes up on 'hello' and does nothing else
 
 from speech_utils import listen_here, speak_here
+from cerebras_api import ask_prompt
 
 
 def main():
@@ -21,7 +22,9 @@ def main():
         print("[INFO] Assistant is awake. Waiting for next command...")
         user_input = listen_here()
         print(f"[DEBUG] Awake mode - Heard: '{user_input}'")
-        # No further actions
+        if user_input:
+            reply = ask_prompt(user_input)
+            speak_here(reply)
 
 if __name__ == "__main__":
     main()
