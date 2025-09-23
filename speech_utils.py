@@ -20,7 +20,7 @@ def play_beep():
     """
     Play the R2D2 beep sound from assets/sounds/lala.wav
     """
-    beep_path = os.path.join("assets", "sounds", "lala.wav")
+    beep_path = os.path.join("assets", "sounds", "listening.wav")
     try:
         wave_obj = sa.WaveObject.from_wave_file(beep_path)
         play_obj = wave_obj.play()
