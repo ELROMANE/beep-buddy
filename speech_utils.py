@@ -33,10 +33,10 @@ def listen_here():
     """
     Capture mic input and return text using Google Speech Recognition.
     """
-    play_beep()  # Play beep instead of logging Listening...
     r = sr.Recognizer()
     try:
         with sr.Microphone() as source:
+            play_beep()  # Play beep instead of logging Listening...
             audio = r.listen(source, timeout=10, phrase_time_limit=8)
             try:
                 text = r.recognize_google(audio, language='en-US')
