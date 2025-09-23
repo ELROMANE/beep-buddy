@@ -3,6 +3,8 @@
 import speech_recognition as sr
 import pyttsx3
 import time
+import os
+import simpleaudio as sa
 
 # Initialize TTS engine
 try:
@@ -14,14 +16,27 @@ engine.setProperty('rate', 180)
 engine.setProperty('volume', 0.9)
 
 
+def play_beep():
+    """
+    Play the R2D2 beep sound from assets/sounds/lala.wav
+    """
+    beep_path = os.path.join("assets", "sounds", "lala.wav")
+    try:
+        wave_obj = sa.WaveObject.from_wave_file(beep_path)
+        play_obj = wave_obj.play()
+        play_obj.wait_done()
+    except Exception as e:
+        print(f"[WARN] Could not play beep sound: {e}")
+
+
 def listen_here():
     """
     Capture mic input and return text using Google Speech Recognition.
     """
+    play_beep()  # Play beep instead of logging Listening...
     r = sr.Recognizer()
     try:
         with sr.Microphone() as source:
-            print("[INFO] Listening...")
             audio = r.listen(source, timeout=10, phrase_time_limit=8)
             try:
                 text = r.recognize_google(audio, language='en-US')
